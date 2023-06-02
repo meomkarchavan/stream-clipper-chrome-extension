@@ -1,81 +1,72 @@
-// Array to store video details with timestamps
-var videoDataArray = [];
+(() => {
+    let youtubeLeftControls, youtubePlayer;
+    let currentVideo = "";
+    let currentVideoBookmarks = [];
 
-// Function to retrieve the YouTube video URL
-function getVideoUrl() {
-    return window.location.href;
-}
-function getVideoId(url) {
-    // Regular expression pattern to match the video ID
-    var pattern = /(?:\?v=|&v=|youtu\.be\/|\/v\/|\/embed\/|\/watch\?v=|\/watch\?.+&v=|\/videos\/|\/embed\/|\/v\/|e\/|youtu\.be\/|v=)([^&\n?#]+)/;
-  
-    // Extract the video ID from the URL
-    var match = url.match(pattern);
-  
-    if (match && match[1]) {
-      return match[1];
-    } else {
-      return null; // No video ID found
+    chrome.runtime.onMessage.addListener((obj, sender, response) => {
+        const { type, value, videoId } = obj;
+
+        if (type === "NEW") {
+            currentVideo = videoId;
+            newVideoLoaded();
+        } else if (type === "PLAY") {
+            youtubePlayer.currentTime = value;
+        } else if (type === "DELETE") {
+            currentVideoBookmarks = currentVideoBookmarks.filter(bookmark => bookmark.time !== value);
+            chrome.storage.sync.set({
+                [currentVideo]: JSON.stringify(currentVideoBookmarks)
+            });
+            response(currentVideoBookmarks);
+        }
+    });
+
+    const fetchBookmarks = () => {
+        return new Promise((resolve) => {
+            chrome.storage.sync.get([currentVideo], (obj) => {
+                resolve(obj[currentVideo] ? JSON.parse(obj[currentVideo]) : []);
+            });
+        });
     }
-  }
-// Function to retrieve video details from the YouTube player
-function getVideoDetails() {
-    var titleElement = document.querySelector('.title > .ytd-video-primary-info-renderer');
-    var videoTitle = titleElement ? titleElement.textContent.trim() : '';
+    const newVideoLoaded = async () => {
+        const bookmarkBtnExists = document.getElementsByClassName("bookmark-btn")[0];
+        // console.log(bookmarkBtnExists);
+        currentVideoBookmarks = await fetchBookmarks()
 
-    var channelElement = document.querySelector('.ytd-channel-name > .yt-simple-endpoint');
-    var channelName = channelElement ? channelElement.textContent.trim() : '';
+        if (!bookmarkBtnExists) {
+            const bookmarkBtn = document.createElement("img");
 
-    var videoDetails = {
-        title: videoTitle,
-        channel: channelName,
-        videoID: getVideoId(getVideoUrl())
-    };
+            bookmarkBtn.src = chrome.runtime.getURL("assets/bookmark.png");
+            bookmarkBtn.className = "ytp-button " + "bookmark-btn";
+            bookmarkBtn.title = "Click to bookmark current timestamp";
 
-    return videoDetails;
-}
+            youtubeLeftControls = document.getElementsByClassName("ytp-left-controls")[0];
+            youtubePlayer = document.getElementsByClassName("video-stream")[0];
 
-// Function to get time range for the current time stamp
-function getTimeRange(currentTime, duration) {
-    var startTime = Math.max(0, currentTime - 10); // 10 seconds before the current time
-    var endTime = Math.min(duration, currentTime + 10); // 10 seconds after the current time
-
-    return {
-        start: startTime,
-        end: endTime
-    };
-}
-
-// Function to update the timestamp of the video details
-function updateTimestamp() {
-    var player = document.querySelector('video');
-    if (player && player.currentTime) {
-        var currentTime = player.currentTime;
-        var duration = player.duration;
-        var details = getVideoDetails();
-        details.duration = duration;
-        details.timestamps = getTimeRange(currentTime, duration);
-        videoDataArray.push(details);
-        console.log(videoDataArray);
-        sendVideoData();
+            youtubeLeftControls.append(bookmarkBtn);
+            bookmarkBtn.addEventListener("click", addNewBookmarkEventHandler);
+        }
     }
-}
 
-// Function to send video data to the extension popup
-function sendVideoData() {
-    console.log(chrome);
-    chrome.runtime.sendMessage({ data: videoDataArray });
-    // chrome.runtime.sendMessage({ action: 'videoData', data: videoDataArray });
-}
+    const addNewBookmarkEventHandler = async () => {
+        const currentTime = youtubePlayer.currentTime;
+        console.log("currenttime: ", currentTime);
+        const newBookmark = {
+            time: currentTime,
+            desc: "Bookmark at " + getTime(currentTime),
+        };
+        currentVideoBookmarks = await fetchBookmarks()
 
-// Add an event listener to capture the key press event
-document.addEventListener('keydown', function (event) {
-    // Check if the "S" key is pressed
-    if (event.key === 's' || event.key === 'S') {
-        updateTimestamp();
+        chrome.storage.sync.set({
+            [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time))
+        });
     }
-});
 
-// Send initial video details to the extension popup
-sendVideoData();
-// setTimeout(updateTimestamp, 3000)
+    newVideoLoaded();
+})();
+
+const getTime = t => {
+    var date = new Date(0);
+    date.setSeconds(t);
+
+    return date.toISOString().substring(19, 11)
+}

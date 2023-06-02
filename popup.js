@@ -1,38 +1,91 @@
-document.addEventListener('DOMContentLoaded', function () {
-    chrome.runtime.sendMessage({ getData: true }, function (response) {
-        if (response.data) {
-            const dataTable = document.getElementById('dataTable');
-            const tbody = dataTable.getElementsByTagName('tbody')[0];
+import { getActiveTabURL } from "./utils.js";
+// adding a new bookmark row to the popup
+const addNewBookmark = (bookmarkElement, bookmark) => {
+    const bookmarkTitleElement = document.createElement("div");
+    const newBookmarkElement = document.createElement("div");
 
-            response.data.forEach(function (item) {
-                const row = document.createElement('tr');
+    const controlsElement = document.createElement("div");
 
-                const titleCell = document.createElement('td');
-                titleCell.textContent = item.title;
-                row.appendChild(titleCell);
+    bookmarkTitleElement.textContent = bookmark.desc;
+    bookmarkTitleElement.className = "bookmark-title";
 
-                const channelCell = document.createElement('td');
-                channelCell.textContent = item.channel;
-                row.appendChild(channelCell);
+    controlsElement.className = "bookmark-controls";
 
-                const videoIDCell = document.createElement('td');
-                videoIDCell.textContent = item.videoID;
-                row.appendChild(videoIDCell);
+    newBookmarkElement.id = "bookmark-" + bookmark.time;
+    // newBookmarkElement.textContent = bookmark.time;
+    newBookmarkElement.className = "bookmark";
+    newBookmarkElement.setAttribute("timestamp", bookmark.time)
 
-                const durationCell = document.createElement('td');
-                durationCell.textContent = item.duration;
-                row.appendChild(durationCell);
+    setBookmarkAttributes("play", onPlay, controlsElement);
+    setBookmarkAttributes("delete", onDelete, controlsElement);
 
-                const startCell = document.createElement('td');
-                startCell.textContent = item.timestamps.start;
-                row.appendChild(startCell);
+    newBookmarkElement.appendChild(bookmarkTitleElement)
+    newBookmarkElement.appendChild(controlsElement)
+    bookmarkElement.appendChild(newBookmarkElement)
+};
 
-                const endCell = document.createElement('td');
-                endCell.textContent = item.timestamps.end;
-                row.appendChild(endCell);
-
-                tbody.appendChild(row);
-            });
+const viewBookmarks = (currentVideoBookmarks = []) => {
+    const bookmarkElement = document.getElementById("bookmarks");
+    bookmarkElement.innerHTML = "";
+    if (currentVideoBookmarks.length > 0) {
+        for (let i = 0; i < currentVideoBookmarks.length; i++) {
+            const bookmark = currentVideoBookmarks[i];
+            addNewBookmark(bookmarkElement, bookmark)
         }
+    } else {
+        bookmarkElement.innerHTML = '<i class="row">No Bookmarks to show</i>'
+    }
+};
+
+const onPlay = async e => {
+    const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
+    const activeTab = await getActiveTabURL();
+
+    chrome.tabs.sendMessage(activeTab.id, {
+        type: "PLAY",
+        value: bookmarkTime,
     });
+};
+
+const onDelete = async e => {
+    const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
+    const activeTab = await getActiveTabURL();
+    const bookmarkElementToDelete = document.getElementById("bookmark-" + bookmarkTime);
+
+    bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete);
+    chrome.tabs.sendMessage(activeTab.id, {
+        type: "DELETE",
+        value: bookmarkTime,
+    }, viewBookmarks);
+
+};
+
+const setBookmarkAttributes = (src, eventListener, controlParentElement) => {
+    const controlElement = document.createElement("img");
+    controlElement.src = "assets/" + src + ".png";
+    controlElement.title = src;
+    controlElement.addEventListener("click", eventListener);
+    controlParentElement.appendChild(controlElement);
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+    console.log("loaded");
+    const activeTab = await getActiveTabURL();
+    const queryParameters = activeTab.url.split("?")[1];
+    const urlParameters = new URLSearchParams(queryParameters);
+
+    const currentVideo = urlParameters.get("v");
+
+    if (activeTab.url.includes("youtube.com/watch") && currentVideo) {
+        chrome.storage.sync.get([currentVideo], (data) => {
+            const currentVideoBookmarks = data[currentVideo] ? JSON.parse(data[currentVideo]) : [];
+
+            viewBookmarks(currentVideoBookmarks);
+        })
+    } else {
+        const container = document.getElementsByClassName("container")[0];
+        container.innerHTML = '<div class="title">This is not a Youtube Video Page</div>'
+    }
+
+
 });
