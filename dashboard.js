@@ -4,26 +4,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     console.log("dashboard loaded");
     fetchBookmarks().then((res) => {
-        console.log(res);
+
+        //tranform data before addding to table
+        var data = transformObject(res);
+        console.log(data);
+        // Initialize DataTable
         $(document).ready(function () {
             var table;
             // Initialize DataTable
             table = $('#bookmarkTable').DataTable({
-                data: res,
+                data: data,
+                responsive: true,
+                pagination: true,
                 columns: [
                     {
                         data: null, render: function (data, type, row) {
                             return '<input type="checkbox" class="checkbox">';
                         }
                     },
+                    { data: 'bookmark_video.video_channel.channel_name' },
+                    { data: 'bookmark_video.video_title' },
                     { data: 'bookmark_title' },
-                    { data: 'bookmark_video_id' },
+                    { data: 'bookmark_video.video_url' },
                     { data: 'bookmark_description' },
                     { data: 'bookmark_timestamp' },
                     {
                         data: null, render: function (data, type, row) {
                             return '<button class="btn btn-primary view-btn" data-toggle="modal" data-target="#viewModal">View</button> ' +
-                                '<button class="btn btn-info update-btn">Update</button> ' +
                                 '<button class="btn btn-danger delete-btn">Delete</button>';
                         }
                     }
@@ -35,19 +42,46 @@ document.addEventListener("DOMContentLoaded", async () => {
                 var data = table.row($(this).closest('tr')).data();
 
                 // Update the modal with row data
-                $('#viewTitle').text(data.bookmark_title);
-                $('#viewVideoId').text(data.bookmark_video_id);
-                $('#viewDescription').text(data.bookmark_description);
-                $('#viewTimestamp').text(data.bookmark_timestamp);
+                // $('#viewID').val(data.id);
+                // $('#viewTitle').val(data.bookmark_title);
+                // $('#viewVideoId').val(data.bookmark_video_id);
+                // $('#viewDescription').val(data.bookmark_description);
+                // $('#viewTimestamp').val(data.bookmark_timestamp);
+
+                $('#viewID').val(data.id);
+                $('#viewTitle').val(data.bookmark_title);
+                $('#viewDescription').val(data.bookmark_description);
+                $('#viewTimestamp').val(data.bookmark_timestamp);
+                $('#viewVideoId').val(data.bookmark_video.video_id);
+                $('#viewUserId').val(data.bookmark_video.user);
+                $('#viewChannelId').val(data.bookmark_video.video_channel.channel_id);
+                $('#viewChannelName').val(data.bookmark_video.video_channel.channel_name);
+                $('#viewVideoDescription').val(data.bookmark_video.video_description);
+                $('#viewVideoDuration').val(data.bookmark_video.video_duration);
+                $('#viewVideoTitle').val(data.bookmark_video.video_title);
+                $('#viewVideoUrl').val(data.bookmark_video.video_url);
+
                 // Show the modal
                 $('#viewModal').modal('show');
+
+                // Update button click event handler
+                $('#updateBtn').on('click', function () {
+                    // Handle update functionality
+                    // You can access the row data here and perform the update operation
+                });
+
+                // Delete button click event handler
+                $('#deleteBtn').on('click', function () {
+                    // Handle delete functionality
+                    // You can access the row data here and perform the delete operation
+                });
             });
         });
     }).catch(error => console.error('Error:', error));
 });
 const fetchBookmarks = () => {
     return new Promise((resolve) => {
-        database.fetchBookmarksDB("").then((res) => {
+        database.fetchBookmarksDB({ expand: true }).then((res) => {
             console.log("fetchBookmarksDB: ", res);
             resolve(res.items ? res.items : []);
         });
@@ -79,4 +113,28 @@ async function performBulkOperation(table, action) {
         // No checkboxes are selected
         console.log('No checkboxes selected');
     }
+}
+
+function transformObject(obj) {
+    // Iterate through each key in the object
+    for (let key in obj) {
+        if (key === 'expand' && obj[key]) {
+            // Get the parent key from the nested "expand" object
+            const parentKey = Object.keys(obj[key])[0];
+
+            // Move the nested "expand" object one level up and replace the value
+            obj[parentKey] = obj[key][parentKey];
+
+            // Recursively transform the nested "expand" object
+            transformObject(obj[parentKey]);
+
+            // Remove the "expand" key
+            delete obj[key];
+        } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+            // Recursively transform the nested objects
+            transformObject(obj[key]);
+        }
+    }
+
+    return obj;
 }

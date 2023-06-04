@@ -18,8 +18,10 @@
             <thead>
                 <tr>
                     <th>Select</th>
+                    <th>Channel</th>
+                    <th>Video</th>
                     <th>Title</th>
-                    <th>Video ID</th>
+                    <th>Video Link</th>
                     <th>Description</th>
                     <th>Timestamp</th>
                     <th>Actions</th>
@@ -29,7 +31,7 @@
             </tbody>
         </table>
     </div>
-    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <!-- <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -37,25 +39,148 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Title</h5>
-                            <p class="card-text" id="viewTitle"></p>
-                            <h5 class="card-title">Video ID</h5>
-                            <p class="card-text" id="viewVideoId"></p>
-                            <h5 class="card-title">Description</h5>
-                            <p class="card-text" id="viewDescription"></p>
-                            <h5 class="card-title">Timestamp</h5>
-                            <p class="card-text" id="viewTimestamp"></p>
+                    <form>
+                    
+                        <div class="mb-3">
+                            <label for="viewChannel" class="form-label">Channel</label>
+                            <input type="text" class="form-control" id="viewChannel">
                         </div>
+                        <div class="mb-3">
+                            <label for="viewVideo" class="form-label">Video</label>
+                            <input type="text" class="form-control" id="viewVideo">
+                        </div>
+                        <div class="mb-3">
+                            <label for="viewTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="viewTitle">
+                        </div>
+                        <div class="mb-3">
+                            <label for="viewVideoLink" class="form-label">Video Link</label>
+                            <input type="text" class="form-control" id="viewVideoLink" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="viewDescription" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="viewDescription">
+                        </div>
+                        <div class="mb-3">
+                            <label for="viewTimestamp" class="form-label">Timestamp</label>
+                            <input type="text" class="form-control" id="viewTimestamp" readonly>
+                        </div>
+                    </form>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="updateBtn">Update</button>
+                        <button type="button" class="btn btn-danger" id="deleteBtn">Delete</button>
+                    </div>
+                    </div>
+                    </div>
+                    </div> -->
+                    
+                    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="viewModalLabel">View Row</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form>
+                    
+                                        <div class="mb-3 row">
+                                            <label for="viewID" class="col-sm-3 col-form-label">Bookmark ID</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewID">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewTitle" class="col-sm-3 col-form-label">Title</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewTitle">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewDescription" class="col-sm-3 col-form-label">Description</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewDescription">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewTimestamp" class="col-sm-3 col-form-label">Timestamp</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewTimestamp" readonly>
+                                            </div>
+                                        </div>
+                                        <!-- <div class="mb-3 row">
+                                                <label for="viewBookmarkTags" class="col-sm-3 col-form-label">Bookmark Tags</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="viewBookmarkTags">
+                                                </div>
+                                            </div> -->
+                                        <div class="mb-3 row">
+                                            <label for="viewVideoId" class="col-sm-3 col-form-label">Video ID</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewVideoId">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewVideoUser" class="col-sm-3 col-form-label"> Video
+                                                User</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewVideoUser">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewChannelName" class="col-sm-3 col-form-label">
+                                                Channel Name</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewChannelName">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewChannelId" class="col-sm-3 col-form-label">
+                                                Channel ID</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewChannelId">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewVideoDescription" class="col-sm-3 col-form-label"> Video
+                                                Description</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewVideoDescription">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewVideoDuration" class="col-sm-3 col-form-label"> Video
+                                                Duration</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewVideoDuration">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewVideoTitle" class="col-sm-3 col-form-label"> Video
+                                                Title</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewVideoTitle">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <label for="viewVideoUrl" class="col-sm-3 col-form-label"> Video URL</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="viewVideoUrl">
+                                            </div>
+                                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="updateBtn">Update</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn">Delete</button>
                 </div>
             </div>
         </div>
     </div>
+
 
 
     <script src="./static/jquery-3.6.0.min.js"></script>
