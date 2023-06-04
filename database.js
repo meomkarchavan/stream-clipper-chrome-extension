@@ -1,13 +1,23 @@
 import PocketBase from './node_modules/pocketbase/dist/pocketbase.es.mjs';
 const pb = new PocketBase('http://127.0.0.1:8090');
-// pb.autoCancellation(false);
+pb.autoCancellation(false);
 
-export const fetchBookmarksDB = async (video_id, page = 1, perPage = 50) => {
+export const fetchBookmarksDB = async (options = {}) => {
+    const {
+        video_id = "",
+        page = 1,
+        perPage = 50,
+        expand = false
+    } = options;
     let filter = {}
     if (video_id !== "") {
         filter = {
-            expand: 'bookmark_video_id',
-            filter: `bookmark_video_id.video_id="${video_id}"`
+            expand: 'bookmark_video',
+            filter: `bookmark_video.video_id="${video_id}"`
+        }
+    } else if (expand) {
+        filter = {
+            expand: 'bookmark_video,bookmark_video.video_channel',
         }
     }
     try {
@@ -195,8 +205,8 @@ export const fetchVideossDB = async (channel_id, page = 1, perPage = 50) => {
     let filter = {}
     if (channel_id !== "") {
         filter = {
-            expand: 'video_channel_id',
-            filter: `video_channel_id.channel_id="${channel_id}"`
+            expand: 'video_channel',
+            filter: `video_channel.channel_id="${channel_id}"`
         }
     }
     console.log("fetchVideossDB filter: ", filter);
