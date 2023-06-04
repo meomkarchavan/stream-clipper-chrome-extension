@@ -1,4 +1,4 @@
-import { fetchBookmarksDB, addNewBookmarkDB, deleteBookmarkDB, viewBookmarkDB, updateBookmarkDB } from './pb.js';
+import * as database from './database.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -16,13 +16,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                             return '<input type="checkbox" class="checkbox">';
                         }
                     },
-                    { data: 'title' },
-                    { data: 'video_id' },
-                    { data: 'description' },
-                    { data: 'duration' },
-                    { data: 'timestamp' },
-                    { data: 'channel_name', defaultContent: "None" },
-                    { data: 'channel_id', defaultContent: "None" },
+                    { data: 'bookmark_title' },
+                    { data: 'bookmark_video_id' },
+                    { data: 'bookmark_description' },
+                    { data: 'bookmark_timestamp' },
                     {
                         data: null, render: function (data, type, row) {
                             return '<button class="btn btn-primary view-btn" data-toggle="modal" data-target="#viewModal">View</button> ' +
@@ -38,14 +35,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 var data = table.row($(this).closest('tr')).data();
 
                 // Update the modal with row data
-                $('#viewTitle').text(data.title);
-                $('#viewVideoId').text(data.video_id);
-                $('#viewDescription').text(data.description);
-                $('#viewDuration').text(data.duration);
-                $('#viewTimestamp').text(data.timestamp);
-                $('#viewChannelName').text(data.channel_name);
-                $('#viewChannelId').text(data.channel_id);
-
+                $('#viewTitle').text(data.bookmark_title);
+                $('#viewVideoId').text(data.bookmark_video_id);
+                $('#viewDescription').text(data.bookmark_description);
+                $('#viewTimestamp').text(data.bookmark_timestamp);
                 // Show the modal
                 $('#viewModal').modal('show');
             });
@@ -54,7 +47,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 const fetchBookmarks = () => {
     return new Promise((resolve) => {
-        fetchBookmarksDB("").then((res) => {
+        database.fetchBookmarksDB("").then((res) => {
             console.log("fetchBookmarksDB: ", res);
             resolve(res.items ? res.items : []);
         });

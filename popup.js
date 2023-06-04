@@ -7,7 +7,7 @@ const addNewBookmark = (bookmarkElement, bookmark) => {
 
     const controlsElement = document.createElement("div");
 
-    bookmarkTitleElement.textContent = bookmark.description;
+    bookmarkTitleElement.textContent = bookmark.bookmark_description;
     bookmarkTitleElement.className = "bookmark-title";
 
     controlsElement.className = "bookmark-controls";
@@ -15,7 +15,7 @@ const addNewBookmark = (bookmarkElement, bookmark) => {
     newBookmarkElement.id = bookmark.id;
     // newBookmarkElement.textContent = bookmark.timestamp;
     newBookmarkElement.className = "bookmark";
-    newBookmarkElement.setAttribute("timestamp", bookmark.timestamp)
+    newBookmarkElement.setAttribute("timestamp", bookmark.bookmark_timestamp)
     newBookmarkElement.setAttribute("id", bookmark.id)
 
     setBookmarkAttributes("play", onPlay, controlsElement);

@@ -1,4 +1,4 @@
-const { fetchBookmarksDB, addNewBookmarkDB, deleteBookmarkDB, viewBookmarkDB, updateBookmarkDB } = require('./pb.js');
+const database = require('./database.js');
 (() => {
     let youtubeLeftControls, youtubePlayer;
     let currentVideo = "";
@@ -17,7 +17,7 @@ const { fetchBookmarksDB, addNewBookmarkDB, deleteBookmarkDB, viewBookmarkDB, up
         } else if (type === "PLAY") {
             youtubePlayer.currentTime = value;
         } else if (type === "DELETE") {
-            deleteBookmarkDB(value).then(() => {
+            database.deleteBookmarkDB(value).then(() => {
                 fetchBookmarks().then((res) => {
                     response(res);
                 })
@@ -35,7 +35,7 @@ const { fetchBookmarksDB, addNewBookmarkDB, deleteBookmarkDB, viewBookmarkDB, up
 
     const fetchBookmarks = () => {
         return new Promise((resolve) => {
-            fetchBookmarksDB(currentVideo).then((res) => {
+            database.fetchBookmarksDB(currentVideo).then((res) => {
                 console.log("fetchBookmarksDB: ", currentVideo);
                 console.log("fetchBookmarksDB: ", res);
                 resolve(res.items ? res.items : []);
@@ -69,13 +69,12 @@ const { fetchBookmarksDB, addNewBookmarkDB, deleteBookmarkDB, viewBookmarkDB, up
         const duration = youtubePlayer.duration;
         console.log("currenttime: ", currentTime);
         const newBookmark = {
-            title: "test",
-            video_id: currentVideo,
-            description: "Bookmark at " + getTime(currentTime),
-            duration: duration,
-            timestamp: currentTime,
+            bookmark_title: "test",
+            bookmark_video_id: currentVideo,
+            bookmark_description: "Bookmark at " + getTime(currentTime),
+            bookmark_timestamp: currentTime,
         };
-        addNewBookmarkDB(newBookmark).then((res) => {
+        database.addNewBookmarkDB(newBookmark).then((res) => {
             console.log("added to db", res);
         })
 
