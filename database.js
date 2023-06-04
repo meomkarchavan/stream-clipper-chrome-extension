@@ -10,18 +10,16 @@ export const fetchBookmarksDB = async (video_id, page = 1, perPage = 50) => {
             filter: `bookmark_video_id.video_id="${video_id}"`
         }
     }
-    console.log("filter: ", filter);
     try {
         const bookmarksList = await pb.collection('bookmarks').getList(page, perPage, filter);
         return bookmarksList;
     } catch (err) {
-        console.log("err fetchBookmarksDB: ", err);
+        console.error("err fetchBookmarksDB: ", err);
         return []
     }
 }
 
 export const addNewBookmarkDB = async (bookmark) => {
-    console.log("addNewBookmarkDB: ", bookmark);
     // const bookmark = {
     //     "bookmark_title": "test title",
     //     "bookmark_video_id": "test video id",
@@ -32,7 +30,7 @@ export const addNewBookmarkDB = async (bookmark) => {
         const record = await pb.collection('bookmarks').create(bookmark);
         return record
     } catch (err) {
-        console.log("err addNewBookmarkDB: ", err);
+        console.error("err addNewBookmarkDB: ", err);
     }
     return {}
 }
@@ -40,7 +38,7 @@ export const deleteBookmarkDB = async (bookmark_record_id) => {
     try {
         await pb.collection('bookmarks').delete(bookmark_record_id);
     } catch (err) {
-        console.log("err deleteBookmarkDB: ", err);
+        console.error("err deleteBookmarkDB: ", err);
     }
 }
 export const viewBookmarkDB = async (bookmark_record_id) => {
@@ -48,7 +46,7 @@ export const viewBookmarkDB = async (bookmark_record_id) => {
         const record = await pb.collection('bookmarks').getOne(bookmark_record_id, {});
         return record
     } catch (err) {
-        console.log("err viewBookmarkDB: ", err);
+        console.error("err viewBookmarkDB: ", err);
     }
     return {}
 }
@@ -64,7 +62,7 @@ export const updateBookmarkDB = async (bookmark_record_id, bookmark) => {
         const record = await pb.collection('bookmarks').update(bookmark_record_id, bookmark);
         return record
     } catch (err) {
-        console.log("err updateBookmarkDB: ", err);
+        console.error("err updateBookmarkDB: ", err);
     }
     return {}
 }
@@ -73,7 +71,7 @@ export const fetchChannelsDB = async (page = 1, perPage = 50) => {
         const channelsList = await pb.collection('channels').getList(page, perPage);
         return channelsList;
     } catch (err) {
-        console.log("err fetchChannelsDB: ", err);
+        console.error("err fetchChannelsDB: ", err);
         return []
     }
 }
@@ -88,7 +86,7 @@ export const addNewChannelDB = async (channel) => {
         const record = await pb.collection('channels').create(channel);
         return record
     } catch (err) {
-        console.log("err addNewChannelDB: ", err);
+        console.error("err addNewChannelDB: ", err);
     }
     return {}
 }
@@ -96,7 +94,7 @@ export const deleteChannelDB = async (channel_record_id) => {
     try {
         await pb.collection('channels').delete(channel_record_id);
     } catch (err) {
-        console.log("err deleteChannelDB: ", err);
+        console.error("err deleteChannelDB: ", err);
     }
 }
 export const viewChannelDB = async (channel_record_id) => {
@@ -104,7 +102,7 @@ export const viewChannelDB = async (channel_record_id) => {
         const record = await pb.collection('channels').getOne(channel_record_id, {});
         return record
     } catch (err) {
-        console.log("err viewChannelDB: ", err);
+        console.error("err viewChannelDB: ", err);
     }
     return {}
 }
@@ -118,23 +116,23 @@ export const updateChannelDB = async (channel_record_id, channel) => {
         const record = await pb.collection('channels').update(channel_record_id, channel);
         return record
     } catch (err) {
-        console.log("err updateChannelDB: ", err);
+        console.error("err updateChannelDB: ", err);
     }
     return {}
 }
 
 export const viewChannelFromYTChannelIDDB = async (channel_id) => {
-    let filter = {
-        filter: `channel_id="${channel_id}"`
-    }
-    console.log("filter: ", filter);
-    try {
-        const channel = await pb.collection('channels').getFirstListItem(filter, {});
-        return channel;
-    } catch (err) {
-        console.log("err viewChannelFromYTChannelIDDB: ", err);
-        return {}
-    }
+    return new Promise((resolve, reject) => {
+        let filter = `channel_id="${channel_id}"`
+        pb.collection('channels').getFirstListItem(filter, {})
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((error) => {
+                console.error("err fviewChannelFromYTChannelIDDB: ", error);
+                reject(error)
+            });
+    })
 }
 
 
@@ -189,7 +187,7 @@ export const updateVideDB = async (video_record_id, video) => {
         const record = await pb.collection('videos').update(video_record_id, video);
         return record
     } catch (err) {
-        console.log("err updateVideoDB: ", err);
+        console.error("err updateVideoDB: ", err);
     }
     return {}
 }
@@ -201,7 +199,7 @@ export const fetchVideossDB = async (channel_id, page = 1, perPage = 50) => {
             filter: `video_channel_id.channel_id="${channel_id}"`
         }
     }
-    console.log("filter: ", filter);
+    console.log("fetchVideossDB filter: ", filter);
     try {
         const videoList = await pb.collection('videos').getList(page, perPage, filter);
         return videoList;
@@ -209,4 +207,18 @@ export const fetchVideossDB = async (channel_id, page = 1, perPage = 50) => {
         console.log("err fetchVideossDB: ", err);
         return []
     }
+}
+export const viewVideoFromYTVideoIDDB = async (video_id) => {
+    // let filter = `video_id="${video_id}"`
+    return new Promise((resolve, reject) => {
+        let filter = `video_id="${video_id}"`
+        pb.collection('videos').getFirstListItem(filter, {})
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((error) => {
+                console.error("err viewVideoFromYTVideoIDDB: ", error);
+                reject(error)
+            });
+    })
 }

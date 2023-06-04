@@ -83,35 +83,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('openDashboardButton').addEventListener('click', openDashboard);
 
     if (activeTab.url.includes("youtube.com/watch") && currentVideo) {
-        console.log("oh youbte hai");
-        // chrome.tabs.sendMessage(activeTab.id, {
-        //     type: "FETCH_DATA",
-        //     videoId: currentVideo,
-        // }, (data) => {
-        //     console.log("aya re res:");
-        //     console.log(data);
-        // });
         chrome.tabs.sendMessage(activeTab.id, {
             type: "FETCH_DATA",
             videoId: currentVideo,
         }, viewBookmarks);
-        // chrome.storage.sync.get([currentVideo], (data) => {
-        //     const currentVideoBookmarks = data[currentVideo] ? JSON.parse(data[currentVideo]) : [];
-        //     console.log("currentVideoBookmarks: ", currentVideoBookmarks);
-        //     viewBookmarks(currentVideoBookmarks);
-        // })
     } else if (window.location.hash == '#window') {
-        console.log("oh dashboard hai");
         const container = document.getElementsByClassName("container")[0];
         // Call the function to load the external HTML file
         loadExternalHTML(container);
     } else {
-        console.log("oh ye kya hai");
         const container = document.getElementsByClassName("container")[0];
-        console.log("ider aya re baba");
         container.innerHTML = '<button id="openDashboardButton">Open Dashboard</button><div class="title">This is not a Youtube Video Page</div>'
         document.getElementById('openDashboardButton').addEventListener('click', openDashboard);
-        console.log("ider bhi aya re baba");
     }
 
 
@@ -124,7 +107,7 @@ function loadExternalHTML(element) {
             element.innerHTML = data;
         })
         .catch(error => {
-            console.log('Error loading external HTML:', error);
+            console.error('Error loading external HTML:', error);
         });
 }
 
