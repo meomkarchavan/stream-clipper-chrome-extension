@@ -1,20 +1,22 @@
 import { getActiveTabURL } from "./utils.js";
 // adding a new bookmark row to the popup
 const addNewBookmark = (bookmarkElement, bookmark) => {
+
     const bookmarkTitleElement = document.createElement("div");
     const newBookmarkElement = document.createElement("div");
 
     const controlsElement = document.createElement("div");
 
-    bookmarkTitleElement.textContent = bookmark.desc;
+    bookmarkTitleElement.textContent = bookmark.description;
     bookmarkTitleElement.className = "bookmark-title";
 
     controlsElement.className = "bookmark-controls";
 
-    newBookmarkElement.id = "bookmark-" + bookmark.time;
-    // newBookmarkElement.textContent = bookmark.time;
+    newBookmarkElement.id = bookmark.id;
+    // newBookmarkElement.textContent = bookmark.timestamp;
     newBookmarkElement.className = "bookmark";
-    newBookmarkElement.setAttribute("timestamp", bookmark.time)
+    newBookmarkElement.setAttribute("timestamp", bookmark.timestamp)
+    newBookmarkElement.setAttribute("id", bookmark.id)
 
     setBookmarkAttributes("play", onPlay, controlsElement);
     setBookmarkAttributes("delete", onDelete, controlsElement);
@@ -25,6 +27,7 @@ const addNewBookmark = (bookmarkElement, bookmark) => {
 };
 
 const viewBookmarks = (currentVideoBookmarks = []) => {
+    console.log("view bookmarks was called: ", currentVideoBookmarks);
     const bookmarkElement = document.getElementById("bookmarks");
     bookmarkElement.innerHTML = "";
     if (currentVideoBookmarks.length > 0) {
@@ -48,14 +51,14 @@ const onPlay = async e => {
 };
 
 const onDelete = async e => {
-    const bookmarkTime = e.target.parentNode.parentNode.getAttribute("timestamp");
+    const bookmarkID = e.target.parentNode.parentNode.getAttribute("id");
     const activeTab = await getActiveTabURL();
-    const bookmarkElementToDelete = document.getElementById("bookmark-" + bookmarkTime);
+    const bookmarkElementToDelete = document.getElementById(bookmarkID);
 
     bookmarkElementToDelete.parentNode.removeChild(bookmarkElementToDelete);
     chrome.tabs.sendMessage(activeTab.id, {
         type: "DELETE",
-        value: bookmarkTime,
+        value: bookmarkID,
     }, viewBookmarks);
 
 };
@@ -75,17 +78,58 @@ document.addEventListener("DOMContentLoaded", async () => {
     const urlParameters = new URLSearchParams(queryParameters);
 
     const currentVideo = urlParameters.get("v");
+    console.log("currentVideo: ", currentVideo);
+
+    document.getElementById('openDashboardButton').addEventListener('click', openDashboard);
 
     if (activeTab.url.includes("youtube.com/watch") && currentVideo) {
-        chrome.storage.sync.get([currentVideo], (data) => {
-            const currentVideoBookmarks = data[currentVideo] ? JSON.parse(data[currentVideo]) : [];
-
-            viewBookmarks(currentVideoBookmarks);
-        })
-    } else {
+        console.log("oh youbte hai");
+        // chrome.tabs.sendMessage(activeTab.id, {
+        //     type: "FETCH_DATA",
+        //     videoId: currentVideo,
+        // }, (data) => {
+        //     console.log("aya re res:");
+        //     console.log(data);
+        // });
+        chrome.tabs.sendMessage(activeTab.id, {
+            type: "FETCH_DATA",
+            videoId: currentVideo,
+        }, viewBookmarks);
+        // chrome.storage.sync.get([currentVideo], (data) => {
+        //     const currentVideoBookmarks = data[currentVideo] ? JSON.parse(data[currentVideo]) : [];
+        //     console.log("currentVideoBookmarks: ", currentVideoBookmarks);
+        //     viewBookmarks(currentVideoBookmarks);
+        // })
+    } else if (window.location.hash == '#window') {
+        console.log("oh dashboard hai");
         const container = document.getElementsByClassName("container")[0];
-        container.innerHTML = '<div class="title">This is not a Youtube Video Page</div>'
+        // Call the function to load the external HTML file
+        loadExternalHTML(container);
+    } else {
+        console.log("oh ye kya hai");
+        const container = document.getElementsByClassName("container")[0];
+        console.log("ider aya re baba");
+        container.innerHTML = '<button id="openDashboardButton">Open Dashboard</button><div class="title">This is not a Youtube Video Page</div>'
+        document.getElementById('openDashboardButton').addEventListener('click', openDashboard);
+        console.log("ider bhi aya re baba");
     }
 
 
 });
+// Function to load the content of the external HTML file
+function loadExternalHTML(element) {
+    fetch('./dashboard.html')
+        .then(response => response.text())
+        .then(data => {
+            element.innerHTML = data;
+        })
+        .catch(error => {
+            console.log('Error loading external HTML:', error);
+        });
+}
+
+function openDashboard() {
+    // chrome.tabs.create({ url: chrome.runtime.getURL('popup.html#window') });
+    // Open a new tab
+    chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
+}

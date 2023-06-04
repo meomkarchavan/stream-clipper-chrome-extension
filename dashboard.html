@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Table Example</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./static/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="./static/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="./static/responsive.dataTables.min.css">
+    <link rel="stylesheet" href="./static/all.min.css">
+    <link rel="stylesheet" href="./static/bootstrap.min.css">
+</head>
+
+<body>
+
+    <div class="container mt-4">
+        <table id="bookmarkTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Title</th>
+                    <th>Video ID</th>
+                    <th>Description</th>
+                    <th>Duration</th>
+                    <th>Timestamp</th>
+                    <th>Channel Name</th>
+                    <th>Channel ID</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">View Row</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Title</h5>
+                            <p class="card-text" id="viewTitle"></p>
+                            <h5 class="card-title">Video ID</h5>
+                            <p class="card-text" id="viewVideoId"></p>
+                            <h5 class="card-title">Description</h5>
+                            <p class="card-text" id="viewDescription"></p>
+                            <h5 class="card-title">Duration</h5>
+                            <p class="card-text" id="viewDuration"></p>
+                            <h5 class="card-title">Timestamp</h5>
+                            <p class="card-text" id="viewTimestamp"></p>
+                            <h5 class="card-title">Channel Name</h5>
+                            <p class="card-text" id="viewChannelName"></p>
+                            <h5 class="card-title">Channel ID</h5>
+                            <p class="card-text" id="viewChannelId"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="./static/jquery-3.6.0.min.js"></script>
+    <script src="./static/jquery.dataTables.min.js"></script>
+    <script src="./static/dataTables.bootstrap5.min.js"></script>
+    <script src="./static/bootstrap.bundle.min.js"></script>
+    <script type="module" src="./dashboard.js"></script>
+
+</body>
+
+</html>
