@@ -1,6 +1,42 @@
 import PocketBase from './node_modules/pocketbase/dist/pocketbase.es.mjs';
+
 const pb = new PocketBase('http://127.0.0.1:8090');
 pb.autoCancellation(false);
+
+export const saveAuth = async (auth) => {
+    pb.authStore.save(auth.token, auth.model)
+}
+// login
+export const login = async ({ email, password }) => {
+    console.log("ubu login", email, password);
+    return new Promise((resolve, reject) => {
+        pb.collection('users').authWithPassword(email, password)
+            .then((user) => {
+                resolve(user)
+            })
+            .catch((err) => {
+                reject(err)
+            });
+    })
+}
+// signup
+export const signup = async (user) => {
+    return new Promise((resolve, reject) => {
+        pb.collection('users').create(user)
+            .then((res) => {
+                // // (optional) send an email verification request
+                // await pb.collection('users').requestVerification(res.email);
+                resolve(res)
+            })
+            .catch((err) => {
+                reject(err)
+            });
+    })
+}
+// logout
+export const logout = async () => {
+    pb.authStore.clear()
+}
 
 export const fetchBookmarksDB = async (options = {}) => {
     const {

@@ -1,17 +1,29 @@
 import * as database from './database.js';
 (async () => {
+    let showLogin = false;
     let youtubeLeftControls, youtubePlayer;
     let currentVideo = "";
 
     let currentVideoObj = {};
-    let currentChannelObj = {};
+    // let currentChannelObj = {};
+    // check auth
+    const checkAuth = () => {
+        // if user is not logged in, show login / signup page
+        const authStr = window.localStorage.getItem('pocketbase_auth')
+        console.log("checking auth", window.localStorage.getItem('pocketbase_auth'));
+        if (!authStr) {
+            return true
+        } else {
+            // resume session
+            const auth = JSON.parse(authStr)
+            console.log("checking auth", auth);
+            database.saveAuth(auth)
+            return false
+        }
+    }
+
     chrome.runtime.onMessage.addListener((obj, sender, response) => {
         const { type, value, videoId } = obj;
-        if (obj.message === "Hello from dashboard!") {
-            // Perform actions based on the message from dashboard.js
-            // You can send a response back if needed using sendResponse
-            response({ response: "Message received in contentscript.js!" });
-        }
         if (type === "NEW") {
             currentVideo = videoId;
             newVideoLoaded();
@@ -27,6 +39,31 @@ import * as database from './database.js';
             currentVideo = videoId
             fetchBookmarks().then((res) => {
                 response(res);
+            })
+        } else if (type === "SHOWLOGIN") {
+            showLogin = checkAuth()
+            console.log("shhowing login page", showLogin);
+            response(showLogin)
+        } else if (type === "LOGIN") {
+            console.log("ider to aya");
+            database.login(value).then((res) => {
+                showLogin = false
+                response(res)
+            }).catch((err) => {
+                throw err
+            })
+        } else if (type === "SIGNUP") {
+            database.signup(value).then((res) => {
+                showLogin = false
+                response(res)
+            }).catch((err) => {
+                throw err
+            })
+        } else if (type === "LOGOUT") {
+            database.logout().then((res) => {
+                showLogin = true
+                response(showLogin)
+                // console.log(res);
             })
         }
         return true;
@@ -151,14 +188,14 @@ import * as database from './database.js';
             console.log("saveChannelDetails viewChannelFromYTChannelIDDB: ", channel);
             database.viewChannelFromYTChannelIDDB(channel.channel_id).then((res) => {
                 if (res) {
-                    currentChannelObj = res
+                    // currentChannelObj = res
                     resolve(res)
                 }
             }).catch((err) => {
                 if (err.status == 404) {
                     database.addNewChannelDB(channel).then((res) => {
                         console.log("addNewChannelDB res: ", res);
-                        currentChannelObj = res
+                        // currentChannelObj = res
                         resolve(res)
                     }).catch((err) => {
                         console.error("addNewChannelDB", (err))
@@ -213,7 +250,6 @@ import * as database from './database.js';
         // Return the video URL
         return videoUrl;
     }
-
 
     newVideoLoaded();
 })();

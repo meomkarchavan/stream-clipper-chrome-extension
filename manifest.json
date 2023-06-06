@@ -1,6 +1,6 @@
 {
-  "name": "My YT Bookmarks",
-  "version": "0.1.0",
+  "name": "Stream Clipper",
+  "version": "0.0.1",
   "description": "Saving timestamps in YT videos",
   "permissions": [
     "storage",

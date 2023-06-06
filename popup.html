@@ -1,10 +1,60 @@
 <link href="popup.css" rel="stylesheet" type="text/css" />
 <script type="module" src="popup.js"></script>
 
+<nav>
+  <h1 style="margin:0; text-align: center; cursor: pointer">Clipper</h1>
+
+  <button id="logout-btn" class="hidden">logout</button>
+
+</nav>
+
 <div class="container">
-  <button id="openDashboardButton">Open Dashboard</button>
-  <div>
-    <div class="title">Your bookmarks for this video</div>
-    <div class="bookmarks" id="bookmarks"></div>
+  <span id="heading"></span>
+  <button id="openDashboardButton" class="hidden">Open Dashboard</button>
+  <div class="container hidden" id="main">
+    <div>
+      <div class="title">Your bookmarks for this video</div>
+      <div class="bookmarks" id="bookmarks"></div>
+    </div>
   </div>
-</div>
+  <article id="login-form" class="hidden">
+    <h2>Login</h2>
+  
+    <label for="login-email">Email</label>
+    <input type="email" id="login-email" placeholder="Email address">
+  
+    <label for="login-password">Password</label>
+    <input type="password" id="login-password">
+  
+    <button id="login-btn">Login</button>
+  
+    <mark id="loginMessage"></mark>
+  
+    <hr style="margin: 4rem;">
+    </hr>
+    
+    <h2>Signup</h2>
+    
+    <label for="signup-email">Email</label>
+    <input type="email" id="signup-email" placeholder="Email address">
+    
+    <label for="signup-password">Password</label>
+    <input type="password" id="signup-password">
+    
+    <label for="signup-passwordConfirm">Confirm Password</label>
+    <input type="password" id="signup-passwordConfirm">
+    
+    <button id="signup-btn" class="contrast outline">Signup</button>
+    
+    <mark id="signupMessage"></mark>
+    
+    </article>
+    </div>
+    
+    <style>
+      .hidden {
+        display: none;
+      }
+    
+    </style>
+    
