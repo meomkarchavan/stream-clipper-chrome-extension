@@ -1,13 +1,14 @@
 import * as database from './database.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
-
-    console.log("dashboard loaded");
+    var current_user_data = {}
+    // console.log("dashboard loaded");
     fetchBookmarks().then((res) => {
 
         //tranform data before addding to table
         var data = transformObject(res);
-        console.log(data);
+        var current_user_data
+        // console.log(data);
         // Initialize DataTable
         $(document).ready(function () {
             var table;
@@ -30,8 +31,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     { data: 'bookmark_timestamp' },
                     {
                         data: null, render: function (data, type, row) {
-                            return '<button class="btn btn-primary view-btn" data-toggle="modal" data-target="#viewModal">View</button> ' +
-                                '<button class="btn btn-danger delete-btn">Delete</button>';
+                            let actions = '<button class="btn btn-primary view-btn" data-toggle="modal" data-target="#viewModal">View</button> '
+                                +
+                                '<button class="btn btn-danger delete-btn" disabled>Delete</button>';
+                            return actions
                         }
                     }
                 ]
@@ -41,19 +44,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Get the data of the row
                 var data = table.row($(this).closest('tr')).data();
 
-                // Update the modal with row data
-                // $('#viewID').val(data.id);
-                // $('#viewTitle').val(data.bookmark_title);
-                // $('#viewVideoId').val(data.bookmark_video_id);
-                // $('#viewDescription').val(data.bookmark_description);
-                // $('#viewTimestamp').val(data.bookmark_timestamp);
-
                 $('#viewID').val(data.id);
                 $('#viewTitle').val(data.bookmark_title);
                 $('#viewDescription').val(data.bookmark_description);
                 $('#viewTimestamp').val(data.bookmark_timestamp);
                 $('#viewVideoId').val(data.bookmark_video.video_id);
-                $('#viewUserId').val(data.bookmark_video.user);
+                $('#viewUserId').val(data.user);
                 $('#viewChannelId').val(data.bookmark_video.video_channel.channel_id);
                 $('#viewChannelName').val(data.bookmark_video.video_channel.channel_name);
                 $('#viewVideoDescription').val(data.bookmark_video.video_description);
@@ -82,8 +78,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 const fetchBookmarks = () => {
     return new Promise((resolve) => {
         database.fetchBookmarksDB({ expand: true }).then((res) => {
-            console.log("fetchBookmarksDB: ", res);
+            // if (res && res.isError) {
+            //     resolve(res.error)
+            // } else {
             resolve(res.items ? res.items : []);
+            // }
         });
     });
 }

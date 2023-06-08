@@ -1,3 +1,4 @@
+//TODO FIND A WAY TO INJECT CONTENT JS IN ALL SITES
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url && tab.url.includes("youtube.com/watch")) {
     const queryParameters = tab.url.split("?")[1];
@@ -7,5 +8,4 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       videoId: urlParameters.get("v"),
     });
   }
-  return true;
 });

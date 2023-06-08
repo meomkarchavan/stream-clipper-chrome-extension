@@ -1,60 +1,66 @@
-<link href="popup.css" rel="stylesheet" type="text/css" />
-<script type="module" src="popup.js"></script>
+<html lang="en">
 
-<nav>
-  <h1 style="margin:0; text-align: center; cursor: pointer">Clipper</h1>
+<head>
+  <link href="popup.css" rel="stylesheet" type="text/css" />
+  <script type="module" src="popup.js"></script>
+  <link rel="stylesheet" href="./static/bootstrap.min.css">
+  <title>Document</title>
+</head>
 
-  <button id="logout-btn" class="hidden">logout</button>
+<body style="width:320px; height:600px">
+  <nav>
+    <h1 style="margin:0; text-align: center; cursor: pointer">Clipper</h1>
+    <button id="logout-btn" class="btn btn-info hidden">logout</button>
+  </nav>
 
-</nav>
-
-<div class="container">
-  <span id="heading"></span>
-  <button id="openDashboardButton" class="hidden">Open Dashboard</button>
-  <div class="container hidden" id="main">
-    <div>
-      <div class="title">Your bookmarks for this video</div>
-      <div class="bookmarks" id="bookmarks"></div>
+  <div class="container">
+    <span id="heading"></span>
+    <button id="openDashboardButton" class="hidden">Open Dashboard</button>
+    <div class="container hidden" id="main">
+      <div>
+        <div class="title">Your bookmarks for this video</div>
+        <div class="bookmarks" id="bookmarks"></div>
+        <button id="export-btn" class="btn btn-warning">Export CSV</button>
+      </div>
     </div>
+      <div id="login-form" class="form-container hidden">
+        <h2>Login</h2>
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" class="form-control mb-3" placeholder="Email address">
+
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" class="form-control mb-3">
+
+        <button id="login-btn" class="btn btn-primary">Login</button>
+
+        <!-- <mark id="loginMessage"></mark> -->
+        <!-- <hr style="margin: 4rem;"> -->
+        <!-- </hr> -->
+        <hr>
+        <h2>Signup</h2>
+
+        <label for="signup-email">Email</label>
+        <input type="email" id="signup-email" class="form-control mb-3" placeholder="Email address">
+
+        <label for="signup-password">Password</label>
+        <input type="password" id="signup-password" class="form-control mb-3">
+
+        <label for="signup-passwordConfirm">Confirm Password</label>
+        <input type="password" id="signup-passwordConfirm" class="form-control mb-3">
+
+        <button id="signup-btn" class="btn btn-primary">Signup</button>
+
+        <!-- <mark id="signupMessage"></mark> -->
+      </div>
   </div>
-  <article id="login-form" class="hidden">
-    <h2>Login</h2>
-  
-    <label for="login-email">Email</label>
-    <input type="email" id="login-email" placeholder="Email address">
-  
-    <label for="login-password">Password</label>
-    <input type="password" id="login-password">
-  
-    <button id="login-btn">Login</button>
-  
-    <mark id="loginMessage"></mark>
-  
-    <hr style="margin: 4rem;">
-    </hr>
-    
-    <h2>Signup</h2>
-    
-    <label for="signup-email">Email</label>
-    <input type="email" id="signup-email" placeholder="Email address">
-    
-    <label for="signup-password">Password</label>
-    <input type="password" id="signup-password">
-    
-    <label for="signup-passwordConfirm">Confirm Password</label>
-    <input type="password" id="signup-passwordConfirm">
-    
-    <button id="signup-btn" class="contrast outline">Signup</button>
-    
-    <mark id="signupMessage"></mark>
-    
-    </article>
-    </div>
-    
-    <style>
-      .hidden {
-        display: none;
-      }
-    
-    </style>
-    
+</body>
+<style>
+  .hidden {
+    display: none;
+  }
+#logout-btn{
+  margin-left: 10px;
+}
+</style>
+
+</html>

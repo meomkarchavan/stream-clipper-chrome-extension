@@ -1,14 +1,33 @@
-import { getActiveTabURL } from "./utils.js";
+import { getActiveTabURL, exportCSV, generateTimestampCSV } from "./utils.js";
+
+const exportBookmarks = async () => {
+    const activeTab = await getActiveTabURL();
+    const queryParameters = activeTab.url.split("?")[1];
+    const urlParameters = new URLSearchParams(queryParameters);
+
+    const currentVideo = urlParameters.get("v");
+    chrome.tabs.sendMessage(activeTab.id, {
+        type: "FETCH_DATA",
+        videoId: currentVideo,
+    }, (bookmarkList) => {
+        var data = generateTimestampCSV(bookmarkList);
+        exportCSV(data)
+        return
+    });
+    return
+}
 // adding a new bookmark row to the popup
 const addNewBookmark = (bookmarkElement, bookmark) => {
-
     const bookmarkTitleElement = document.createElement("div");
     const newBookmarkElement = document.createElement("div");
+    // const bookmarkUsernameElement = document.createElement("div");
 
     const controlsElement = document.createElement("div");
 
-    bookmarkTitleElement.textContent = bookmark.bookmark_description;
+    bookmarkTitleElement.textContent = bookmark.bookmark_title;
     bookmarkTitleElement.className = "bookmark-title";
+    // bookmarkUsernameElement.textContent = bookmark.user;
+    // bookmarkUsernameElement.className = "bookmark-title";
 
     controlsElement.className = "bookmark-controls";
 
@@ -19,23 +38,31 @@ const addNewBookmark = (bookmarkElement, bookmark) => {
     newBookmarkElement.setAttribute("id", bookmark.id)
 
     setBookmarkAttributes("play", onPlay, controlsElement);
-    setBookmarkAttributes("delete", onDelete, controlsElement);
+    // console.log("Current user", bookmark, current_user_data);
+    // if (bookmark.user === current_user_data.id) {
+    //     setBookmarkAttributes("delete", onDelete, controlsElement);
+    // }
 
     newBookmarkElement.appendChild(bookmarkTitleElement)
+    // newBookmarkElement.appendChild(bookmarkUsernameElement)
     newBookmarkElement.appendChild(controlsElement)
     bookmarkElement.appendChild(newBookmarkElement)
 };
 
 const viewBookmarks = (currentVideoBookmarks = []) => {
-    console.log("view bookmarks was called: ", currentVideoBookmarks);
     const bookmarkElement = document.getElementById("bookmarks");
+    const exportBtnElement = document.getElementById("export-btn");
     bookmarkElement.innerHTML = "";
     if (currentVideoBookmarks.length > 0) {
         for (let i = 0; i < currentVideoBookmarks.length; i++) {
             const bookmark = currentVideoBookmarks[i];
             addNewBookmark(bookmarkElement, bookmark)
         }
+        exportBtnElement.disabled = false;
+        exportBtnElement.addEventListener("click", exportBookmarks);
+
     } else {
+        exportBtnElement.disabled = true;
         bookmarkElement.innerHTML = '<i class="row">No Bookmarks to show</i>'
     }
 };
@@ -70,19 +97,22 @@ const setBookmarkAttributes = (src, eventListener, controlParentElement) => {
     controlElement.addEventListener("click", eventListener);
     controlParentElement.appendChild(controlElement);
 };
-const addDashBoardButton = () => { }
-// const 
 const checkShowLogin = () => {
     return new Promise(async (resolve, reject) => {
         const activeTab = await getActiveTabURL();
         chrome.tabs.sendMessage(activeTab.id, {
             type: "SHOWLOGIN",
         }, (res) => {
-            console.log("show login response", res);
-            if (res == undefined) {
-
+            // console.log("show login response", res);
+            if (res && !res.showLogin && res.current_user) {
+                // current_user_data = res.current_user
+                // console.log("sendng:", { showLogin: res.showLogin });
+                resolve(res);
+                // resolve({ showLogin: true })
+            } else {
+                // console.log("else sendng:", true);
+                resolve({ showLogin: true })
             }
-            resolve(res);
         });
     });
 };
@@ -98,11 +128,11 @@ const login = async () => {
         type: "LOGIN",
         value: user,
     }, (res) => {
-        console.log("got login", res);
-        // user = res
+        // console.log("got login", res);
+        // current_user_data = res.record
         hideLoginSignUp()
         showLogOut();
-        showDashboardButton()
+        // showDashboardButton()
         showPopUp();
         return res
     });
@@ -122,22 +152,22 @@ const signup = async () => {
     user.password = passwordElement.value
     const confirmPasswordElement = document.getElementById("signup-passwordConfirm");
     user.passwordConfirm = confirmPasswordElement.value
-    console.log(user);
+    // console.log(user);
     chrome.tabs.sendMessage(activeTab.id, {
         type: "SIGNUP",
         value: user,
     }, (res) => {
-        console.log("got SIGNUP", res);
-        // user = res
+        // console.log("got SIGNUP", res);
+        // current_user_data = res.record
         hideLoginSignUp()
         showLogOut();
-        showDashboardButton()
+        // showDashboardButton()
         showPopUp();
         return res
     });
 }
 const logout = async () => {
-    console.log("logout clicked");
+    // console.log("logout clicked");
     const activeTab = await getActiveTabURL();
 
     chrome.tabs.sendMessage(activeTab.id, {
@@ -150,28 +180,35 @@ const logout = async () => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("loaded");
-    checkShowLogin().then((showLogin) => {
-        console.log("final show login:", showLogin);
-        if (showLogin) {
-            hidePopUp();
-            showLoginSignUp();
-        } else {
-            showDashboardButton();
-            console.log("not showwung this", showLogin);
-            if (showLogin === undefined) {
-                hidePopUp()
+    // console.log("loaded");
+    checkShowLogin()
+        .then((res) => {
+            // console.log("final show login:", res);
+            if (res) {
+                if (res.showLogin) {
+                    hidePopUp();
+                    showLoginSignUp();
+                } else {
+                    // showDashboardButton();
+                    // console.log("not showwung this", showLogin);
+                    if (res.showLogin === undefined) {
+                        hidePopUp()
+                    } else {
+                        // console.log("what:", res.current_user, current_user_data);
+                        // current_user_data = res.current_user.model
+                        showLogOut();
+                        showPopUp();
+                    }
+                }
             } else {
-                showLogOut();
-                showPopUp();
+                hidePopUp();
+                showLoginSignUp();
             }
-        }
-    });
+        });
 });
 
 async function showPopUp() {
-    const main = document.getElementById("main");
-    main.classList.remove('hidden')
+
 
     const activeTab = await getActiveTabURL();
     const queryParameters = activeTab.url.split("?")[1];
@@ -179,9 +216,11 @@ async function showPopUp() {
 
     const currentVideo = urlParameters.get("v");
 
-    const heading = document.getElementById("heading");
-    heading.innerHTML = '<div class="title">Logged In</div>'
+    // const heading = document.getElementById("heading");
+    // heading.innerHTML = '<div class="title">Logged In</div>'
     if (activeTab.url.includes("youtube.com/watch") && currentVideo) {
+        const main = document.getElementById("main");
+        main.classList.remove('hidden')
         chrome.tabs.sendMessage(activeTab.id, {
             type: "FETCH_DATA",
             videoId: currentVideo,

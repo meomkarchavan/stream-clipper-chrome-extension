@@ -4,10 +4,12 @@
   "description": "Saving timestamps in YT videos",
   "permissions": [
     "storage",
+    "downloads",
     "tabs"
   ],
   "host_permissions": [
-    "https://*.youtube.com/*"
+    "https://*.youtube.com/*",
+    "http://localhost:8090/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -16,7 +18,11 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.youtube.com/*"
+        "<all_urls>",
+        "http://localhost:8090/*"
+      ],
+      "css": [
+        "styles.css"
       ],
       "js": [
         "dist/contentScript.bundle.js"
@@ -36,10 +42,14 @@
         "static/responsive.dataTables.min.css",
         "static/all.min.css",
         "static/bootstrap.min.css",
-        "static/bootstrap.bundle.min.js"
+        "static/bootstrap.bundle.min.js",
+        "tags.css",
+        "tags.js"
       ],
       "matches": [
-        "https://*.youtube.com/*"
+        "<all_urls>",
+        "https://*.youtube.com/*",
+        "http://localhost:8090/*"
       ]
     }
   ],
